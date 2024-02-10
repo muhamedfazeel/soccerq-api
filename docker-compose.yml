@@ -1,0 +1,67 @@
+version: '3.8'
+services:
+  nodejs-db:
+    container_name: nest-db
+    image: postgres:16.1-alpine
+    ports:
+      - '${DB_READ_PORT}:5432'
+    expose:
+      - '${DB_READ_PORT}'
+    environment:
+      POSTGRES_USER: '${DB_READ_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_READ_PASSWORD}'
+      POSTGRES_DB: '${DB_READ_NAME}'
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'pg_isready',
+          '-d',
+          '${DB_READ_NAME}',
+          '-U',
+          '${DB_READ_USERNAME}',
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nest
+
+  api:
+    container_name: nest-api
+    build: .
+    image: nodejs:20-alpine
+    ports:
+      - '${PORT}:${PORT}'
+    networks:
+      - nest
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      - LOCALHOST=${LOCALHOST}
+      - LOGGER_LEVEL=${LOGGER_LEVEL}
+      - PRETTY_PRINT_LOG=${PRETTY_PRINT_LOG}
+      - SWAGGER_SERVER=${SWAGGER_SERVER}
+      - DEV_SERVER_URL=${DEV_SERVER_URL}
+      - DB_READ_HOST=${DB_READ_HOST}
+      - DB_READ_PORT=${DB_READ_PORT}
+      - DB_READ_NAME=${DB_READ_NAME}
+      - DB_READ_USERNAME=${DB_READ_USERNAME}
+      - DB_READ_PASSWORD=${DB_READ_PASSWORD}
+      - DB_WRITE_HOST=${DB_WRITE_HOST}
+      - DB_WRITE_PORT=${DB_WRITE_PORT}
+      - DB_WRITE_NAME=${DB_WRITE_NAME}
+      - DB_WRITE_USERNAME=${DB_WRITE_USERNAME}
+      - DB_WRITE_PASSWORD=${DB_WRITE_PASSWORD}
+      - MAX_LOGIN_LIMIT=${MAX_LOGIN_LIMIT}
+    depends_on:
+      nodejs-db:
+        condition: service_healthy
+    restart: on-failure
+    command: sh -c "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start:prod; else npm run start:dev; fi"
+
+networks:
+  nest:
