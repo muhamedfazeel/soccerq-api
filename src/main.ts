@@ -9,8 +9,10 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { MAX_JSON_REQUEST_SIZE } from './shared/constants';
 import { name, description, version } from 'package.json';
+import { CustomLogger } from './shared/logger/custom-logger.service';
 
 async function bootstrap() {
+  const logger = new CustomLogger('Main');
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ bodyLimit: MAX_JSON_REQUEST_SIZE }),
@@ -48,5 +50,6 @@ async function bootstrap() {
   app.enableVersioning({ type: VersioningType.URI });
 
   await app.listen(port);
+  logger.log(`Listening on port ${port}, running in ${env} environment`);
 }
 bootstrap();
