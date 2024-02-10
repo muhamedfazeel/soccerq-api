@@ -1,5 +1,5 @@
 {
-  "name": "nestjs",
+  "name": "soccerq-main-api",
   "version": "0.0.1",
   "description": "",
   "author": "Fazeel",
@@ -51,10 +51,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/muhamedfazeel/nestjs-bp.git"
+    "url": "git+https://github.com/muhamedfazeel/soccerq-main-api.git"
   },
   "bugs": {
-    "url": "https://github.com/muhamedfazeel/nestjs-bp/issues"
+    "url": "https://github.com/muhamedfazeel/soccerq-main-api/issues"
   },
-  "homepage": "https://github.com/muhamedfazeel/nestjs-bp#readme"
+  "homepage": "https://github.com/muhamedfazeel/soccerq-main-api#readme"
 }

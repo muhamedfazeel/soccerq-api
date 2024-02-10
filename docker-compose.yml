@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   nodejs-db:
-    container_name: nest-db
+    container_name: soccerq-db
     image: postgres:16.1-alpine
     ports:
       - '${DB_READ_PORT}:5432'
@@ -28,16 +28,16 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - nest
+      - soccerq
 
   api:
-    container_name: nest-api
+    container_name: soccerq-api
     build: .
     image: nodejs:20-alpine
     ports:
       - '${PORT}:${PORT}'
     networks:
-      - nest
+      - soccerq
     environment:
       - NODE_ENV=${NODE_ENV}
       - PORT=${PORT}
@@ -64,4 +64,4 @@ services:
     command: sh -c "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start:prod; else npm run start:dev; fi"
 
 networks:
-  nest:
+  soccerq:
