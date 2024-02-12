@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { MAX_JSON_REQUEST_SIZE } from './shared/constants';
 import { name, description, version } from 'package.json';
 import { CustomLogger } from './shared/logger/custom-logger.service';
+import { SuccessResponseInterceptor } from './interceptors/success-response.interceptor';
 
 async function bootstrap() {
   const logger = new CustomLogger('Main');
@@ -19,10 +20,8 @@ async function bootstrap() {
   );
   const config = app.get<ConfigService>(ConfigService);
   const port = config.get('config.port');
-  const env = config.get('config.env');
+  const env = config.get('config.environment');
   const swaggerServer = config.get('config.swaggerServer');
-
-  // TODO: Setup a logger
 
   // CORS
   if (env !== 'production') {
@@ -33,6 +32,10 @@ async function bootstrap() {
     });
   }
 
+  app.setGlobalPrefix('/api');
+  app.enableVersioning({ type: VersioningType.URI });
+  app.useGlobalInterceptors(new SuccessResponseInterceptor());
+
   // Swagger Configuration
   if (swaggerServer) {
     const options = new DocumentBuilder()
@@ -40,14 +43,10 @@ async function bootstrap() {
       .setDescription(`${description}\nRunning on ${env} Mode`)
       .setVersion(version)
       .addServer(`http://localhost:${port}`, 'Localhost')
-      .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('swagger', app, document);
+    SwaggerModule.setup('swagger/static/index.html', app, document);
   }
-
-  app.setGlobalPrefix('/api/v1');
-  app.enableVersioning({ type: VersioningType.URI });
 
   await app.listen(port);
   logger.log(`Listening on port ${port}, running in ${env} environment`);
